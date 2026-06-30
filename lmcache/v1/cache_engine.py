@@ -448,7 +448,7 @@ class LMCacheEngine:
         )
         # 至此已经给出需要存多少个cache
 
-        # KVCache Check logging
+        # KVCache Check logging 11
         self._log_kvcache_for_check(
             operation="Store",
             kwargs=kwargs,
