@@ -5,6 +5,11 @@ import contextlib
 import os
 import time
 
+# DEBUG
+os.environ["VLLM_ENABLE_V1_MULTIPROCESSING"] = "0"
+os.environ["VLLM_LOGGING_LEVEL"] = "DEBUG"
+os.environ["LMCACHE_LOG_LEVEL"] = "DEBUG"
+
 # Third Party
 from vllm import LLM, SamplingParams
 from vllm.config import KVTransferConfig
@@ -45,7 +50,7 @@ def setup_environment_variables(vllm_version: str, use_disk: bool = False):
 
 @contextlib.contextmanager
 def build_llm_with_lmcache(lmcache_connector: str, model: str, vllm_version: str):
-    ktc = KVTransferConfig(
+    ktc = KVTransferConfig( # 
         kv_connector=lmcache_connector,
         kv_role="kv_both",
     )
@@ -58,7 +63,7 @@ def build_llm_with_lmcache(lmcache_connector: str, model: str, vllm_version: str
     # field, and vLLM >= 0.20 / pydantic v2 rejects None for
     # CompilationConfig fields like cudagraph_capture_sizes (list) and
     # pass_config.fuse_minimax_qk_norm (bool). See issue #3438.
-    llm_kwargs = {
+    llm_kwargs = { # 参数配置
         "model": model,
         "kv_transfer_config": ktc,
         "max_model_len": 4096,
@@ -85,7 +90,7 @@ def print_output(
     # `LMCache INFO: Storing KV cache for 6006 out of 6006 tokens for request 0`
     # This indicates that the KV cache has been stored in LMCache.
     start = time.time()
-    outputs = llm.generate(prompt, sampling_params)
+    outputs = llm.generate(prompt, sampling_params) # 
     print("-" * 50)
     for output in outputs:
         generated_text = output.outputs[0].text
@@ -116,16 +121,16 @@ def parse_args():
 
 
 def main():
-    args = parse_args()
+    args = parse_args() # 读参数
 
-    if args.version == "v0":
+    if args.version == "v0": # 设置kvConnector
         lmcache_connector = "LMCacheConnector"
         model = "Qwen/Qwen3-0.6B"
     else:
         lmcache_connector = "LMCacheConnectorV1"
         model = "Qwen/Qwen3-0.6B"
 
-    setup_environment_variables(args.version, args.use_disk)
+    setup_environment_variables(args.version, args.use_disk) # 设置Lmcache参数
 
     with build_llm_with_lmcache(lmcache_connector, model, args.version) as llm:
         # This example script runs two requests with a shared prefix.

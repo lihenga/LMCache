@@ -410,19 +410,19 @@ class LMCacheEngine:
             multiple of the chunk size.
         """
         # Health check: block operation if LMCache is unhealthy
-        if not self.is_healthy():
+        if not self.is_healthy(): # 安全检查
             logger.warning("LMCache is unhealthy, skipping store operation")
             return
 
-        assert self.gpu_connector is not None, (
+        assert self.gpu_connector is not None, ( # 检查连接
             "gpu_connector is required for store operation"
         )
 
-        if self._is_passive():
+        if self._is_passive(): # passive不保存
             logger.debug("rank=%d ignore store", self.metadata.worker_id)
             return
 
-        assert self.storage_manager is not None
+        assert self.storage_manager is not None # 
 
         # Get req_id for logging
         req_id = self._get_req_id(kwargs)
@@ -446,6 +446,7 @@ class LMCacheEngine:
         assert tokens is not None or hashes is not None, (
             "Either 'tokens' or 'hashes' must be provided."
         )
+        # 至此已经给出需要存多少个cache
 
         # KVCache Check logging
         self._log_kvcache_for_check(
